@@ -387,8 +387,9 @@ void efetuarVenda(){
   struct reg_cliente cliente;
   struct reg_livro livro;
   struct reg_venda cart[100];
-  char opc, confirm;
+  char opc, confirmCont, confirmCart;
   int x=0; // quantidade de indexs
+  double total, totalAll=0;
   
   //Entrada de Dados
   //Pedir o código da venda (nro. do pedido)
@@ -447,27 +448,34 @@ void efetuarVenda(){
     }
 
     cart[x] = venda;
-    printf("\n Deseja adicionar mais itens? (S - Sim / N - Não)");
-    fflush(stdin); scanf("%c", &confirm);
-    if((confirm == 'n') || (confirm == 'N')){
-      printf("Carrinho de pedidos:\n");
-      printf("========================================\n");
+    printf("\nDeseja adicionar mais itens? (S/N)");
+    fflush(stdin); scanf("%c", &confirmCont);
+    if((confirmCont == 'n') || (confirmCont == 'N')){
+      printf("==========     Carrinho de pedidos:    ==========\n");
       printf("Cliente: %s\n", cliente.nome);
       printf("Codigo pedido: %i\n", venda.codvenda);
 
-      for(int i = 0; i < x; i++){
+      for(int i = 0; i < x + 1; i++){
+        printf("-------------------------------------------------\n");
         livro = localizarLivro(cart[i].codlivro);
         printf("Titulo do livro: %s\n", livro.titulo);
-        printf("Quantidade %i\n", cart[i].qtde);
-        printf("Preco %5.2f\n", livro.preco);
-        printf("Desconto %5.2f\n", cart[i].desconto);
-        float total = livro.preco - cart[i].desconto;
-        printf("Total do item %5.2f\n", total);
-  
-        printf("========================================\n");
+        printf("Quantidade: %i\n", cart[i].qtde);
+        printf("Preco: %5.2f\n", livro.preco);
+        printf("Desconto: %5.2f\n", cart[i].desconto);
+        total = livro.preco - cart[i].desconto;
+        printf("Total da unidade: %5.2f\n", total);
+        printf("Total: %5.2f\n", total*cart[i].qtde);
 
-        float totalAll = total + totalAll;
+        totalAll += (total*cart[i].qtde);
       }
+      printf("========     Total dos pedidos: %5.2f     ========\n", totalAll);
+      
+      printf("Deseja cancelar o carrinho? (S/N)");
+      fflush(stdin); scanf("%c", &confirmCart);
+      if((confirmCart == "s") || (confirmCart == "S")){
+        printf("test");
+        return;
+      }  
       break;
     }
     x++;
@@ -532,7 +540,7 @@ int main() {
 		    break; 	
 	    case 8: //Efetuar a Venda
 	      efetuarVenda();
-	      break;
+	      break; 	
 	} 	
   }while (op!=0);
 
