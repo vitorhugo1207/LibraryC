@@ -469,18 +469,17 @@ void efetuarVenda(){
         totalAll += (total*cart[i].qtde);
       }
       printf("========     Total dos pedidos: %5.2f     ========\n", totalAll);
-      
-      printf("Deseja cancelar o carrinho? (S/N)");
-      fflush(stdin); scanf("%c", &confirmCart);
-      if((confirmCart == "s") || (confirmCart == "S")){
-        printf("test");
-        return;
-      }  
       break;
     }
     x++;
   }
-    
+
+  printf("\nDeseja cancelar o carrinho? (S/N) ");
+  fflush(stdin); scanf("%c", &confirmCart);
+  if((confirmCart == 's') || (confirmCart == 'S')){
+    return;
+  }
+
   //Gravar os dados no arquivo de Vendas
   //Abrir o Arquivo
   fpvenda = fopen(VENDAS,"ab");  
@@ -489,7 +488,7 @@ void efetuarVenda(){
 	//Fechar o Arquivo
 	fclose(fpvenda);
 	//Dar uma msg de feedback para o usuário
-	printf("\n Venda Gravada com Sucesso.");
+	printf("\nVenda Gravada com Sucesso.");
 }//Fim efetuarVenda()
 
 int main() { 
