@@ -491,6 +491,42 @@ void efetuarVenda(){
 	printf("\nVenda Gravada com Sucesso.");
 }//Fim efetuarVenda()
 
+void showSolds(){
+  FILE *fplivro;
+  FILE *fpcliente;
+  FILE *fpvenda;
+
+  struct reg_livro livro;
+  struct reg_cliente cliente;
+  struct reg_venda venda;
+
+  if((fplivro = fopen(LIVROS, "rb"))==NULL){
+  	printf("\nErro ao abrir o Arquivo %s",LIVROS);
+  	return;  //Volta para o Programa Principal
+  }
+  if((fpcliente = fopen(CLIENTES, "rb"))==NULL){
+  	printf("\nErro ao abrir o Arquivo %s",CLIENTES);
+  	return;  //Volta para o Programa Principal
+  }
+  if((fpvenda = fopen(VENDAS, "rb"))==NULL){
+  	printf("\nErro ao abrir o Arquivo %s",VENDAS);
+  	return;  //Volta para o Programa Principal
+  }
+
+  // (fread(&livro, sizeof(livro),1,fplivro));
+  // (fread(&cliente, sizeof(cliente),1,fpcliente));
+  // (fread(&venda, sizeof(venda),1,fpvenda));
+
+  printf("=============== Vendas ===============");
+  while ((fread(&venda, sizeof(venda),1,fpvenda)==1) && (fread(&cliente, sizeof(cliente),1,fpcliente)==1) && (fread(&venda, sizeof(venda),1,fpvenda)==1)){
+    printf("\nPedido numero: ", venda.codvenda);
+    printf("\nCliente: ", cliente.nome);
+    printf("\nCodigo - Titulo                  Qtde. Preco  Desconto  Valor Pago");
+  }
+
+  fclose(fplivro);
+}
+
 int main() { 
   int op;
   
@@ -500,6 +536,7 @@ int main() {
   	printf("\n### 1) Cadastrar um Livro                          ###");
   	printf("\n### 111) Cadastrar um Cliente                      ###");
   	printf("\n### 2) Listar todos os Livros                      ###");
+  	printf("\n### 22) Listar todos as Vendas                     ###");
   	printf("\n### 222) Listar todos os Clientes                  ###");
   	printf("\n### 3) Consultar Livro pelo Codigo                 ###");
   	printf("\n### 4) Consultar Livro pelo Titulo                 ###");
@@ -540,6 +577,8 @@ int main() {
 	    case 8: //Efetuar a Venda
 	      efetuarVenda();
 	      break; 	
+      case 22:
+        showSolds();
 	} 	
   }while (op!=0);
 
