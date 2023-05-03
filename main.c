@@ -500,6 +500,8 @@ void showSolds(){
   struct reg_cliente cliente;
   struct reg_venda venda;
 
+  int vendaBefore;
+
   if((fplivro = fopen(LIVROS, "rb"))==NULL){
   	printf("\nErro ao abrir o Arquivo %s",LIVROS);
   	return;  //Volta para o Programa Principal
@@ -513,15 +515,25 @@ void showSolds(){
   	return;  //Volta para o Programa Principal
   }
 
-  // (fread(&livro, sizeof(livro),1,fplivro));
-  // (fread(&cliente, sizeof(cliente),1,fpcliente));
-  // (fread(&venda, sizeof(venda),1,fpvenda));
+  // fread(&livro, sizeof(livro),1,fplivro);
+  // fread(&cliente, sizeof(cliente),1,fpcliente);
+  // fread(&venda, sizeof(venda),1,fpvenda);
 
   printf("=============== Vendas ===============");
-  while ((fread(&venda, sizeof(venda),1,fpvenda)==1) && (fread(&cliente, sizeof(cliente),1,fpcliente)==1) && (fread(&venda, sizeof(venda),1,fpvenda)==1)){
-    printf("\nPedido numero: ", venda.codvenda);
-    printf("\nCliente: ", cliente.nome);
-    printf("\nCodigo - Titulo                  Qtde. Preco  Desconto  Valor Pago");
+  while ((fread(&cliente, sizeof(cliente),1,fpcliente)==1) && (fread(&venda, sizeof(venda),1,fpvenda)==1) && (fread(&livro, sizeof(livro),1,fplivro)==1))
+  {
+    if (venda.codvenda != vendaBefore)
+    {
+      /* code */
+      printf("--------------------------------------");
+      printf("\nPedido numero: %i", venda.codvenda);
+      printf("\nCliente: %s", cliente.nome);
+      printf("\nCodigo - Titulo                  Qtde. Preco  Desconto  Valor Pago");
+    }
+    livro = localizarLivro(venda.codlivro);
+    printf("%i %s ", venda.codlivro, livro.titulo)
+
+    vendaBefore = venda.codvenda
   }
 
   fclose(fplivro);
