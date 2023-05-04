@@ -4,7 +4,6 @@
 #define LIVROS "livros.dat"
 #define CLIENTES "clientes.dat"
 #define VENDAS "vendas.dat"
-#define MAXCART 50 //Max number of the cart
 
 struct reg_livro{ 
  int codigo; 
@@ -22,9 +21,9 @@ struct reg_cliente{
 struct reg_venda{
   int codvenda;  //Código da venda (ou pedido)	
   int codcliente; //Código do Cliente que comprou
-  int codlivro[MAXCART];  //Código do Livro vendido
-  int qtde[MAXCART];  //Qtde vendida deste item
-  float desconto[MAXCART]; //Desconto aplicado a este item
+  int codlivro;  //Código do Livro vendido
+  int qtde;  //Qtde vendida deste item
+  float desconto; //Desconto aplicado a este item
 };
 
 void cadastrarLivro(){
@@ -387,175 +386,91 @@ void efetuarVenda(){
   struct reg_venda venda;
   struct reg_cliente cliente;
   struct reg_livro livro;
-  char opc, confirmCont, confirmCart;
-  int x=0; // quantidade de indexs
-  double total, totalAll=0;
+  char opc;
   
   //Entrada de Dados
-  //Pedir o código da venda (nro. do pedido)
-  printf("\nDigite o Codigo da Venda: ");
-  fflush(stdin); scanf("%i",&venda.codvenda);
-
-  //Pedir o Códio do cliente
-  printf("Digite o Codigo do Cliente: ");
-  fflush(stdin); scanf("%i",&venda.codcliente);    
-  //Localizar o Cliente, mostrar e pedir confirmação
-  cliente = localizarCliente(venda.codcliente);
-  if (cliente.codigo==-1){
-    printf("\nNenhum Cliente localizado com este codigo!");
-    return; //Retorna para o menu principal
-  }
-  printf("\nCliente: %s",cliente.nome);
-  printf("\nConfirma Cliente(S/N)? ");
-  fflush(stdin); scanf("%c",&opc);
-  if ((opc=='n')||(opc=='N')){
-    printf("\nCliente NAO Confirmado!");
-    return; ////Retorna para o menu principal
-  }
-
-  for(int y = 0; y < MAXCART; y++){
+    //Pedir o código da venda (nro. do pedido)
+    printf("\nDigite o Codigo da Venda: ");
+    fflush(stdin); scanf("%i",&venda.codvenda);
+    //Pedir o Códio do cliente
+    printf("Digite o Codigo do Cliente: ");
+    fflush(stdin); scanf("%i",&venda.codcliente);    
+    //Localizar o Cliente, mostrar e pedir confirmação
+    cliente = localizarCliente(venda.codcliente);
+    if (cliente.codigo==-1){
+    	printf("\nNenhum Cliente localizado com este codigo!");
+    	return; //Retorna para o menu principal
+	}
+	printf("\nCliente: %s",cliente.nome);
+	printf("\nConfirma Cliente(S/N)? ");
+	fflush(stdin); scanf("%c",&opc);
+	if ((opc=='n')||(opc=='N')){
+		printf("\nCliente NAO Confirmado!");
+		return; ////Retorna para o menu principal
+	}
     //Pedir o Código do Livro
     printf("Digite o Codigo do Livro: ");
-    fflush(stdin); scanf("%i",&venda.codlivro[y]);    
+    fflush(stdin); scanf("%i",&venda.codlivro);    
     //Localizar o Livro, mostrar e pedir confirmação
-    livro = localizarLivro(venda.codlivro[y]);
+    livro = localizarLivro(venda.codlivro);
     if (livro.codigo==-1){
-      printf("\nNenhum Livro localizado com este codigo!");
-      return; //Retorna para o menu principal
-    }
-    printf("\nLivro: %s",livro.titulo);
-    printf("\nConfirma Livro(S/N)? ");
-    fflush(stdin); scanf("%c",&opc);
-    if ((opc=='n')||(opc=='N')){
-      printf("\nLivro NAO Confirmado!");
-      return; ////Retorna para o menu principal
-    }
+    	printf("\nNenhum Livro localizado com este codigo!");
+    	return; //Retorna para o menu principal
+	}
+	printf("\Livro: %s",livro.titulo);
+	printf("\nConfirma Livro(S/N)? ");
+	fflush(stdin); scanf("%c",&opc);
+	if ((opc=='n')||(opc=='N')){
+		printf("\nLivro NAO Confirmado!");
+		return; ////Retorna para o menu principal
+	}
 
     //Pedir a Qtde
     printf("\nDigite a quantidade: ");
-    fflush(stdin); scanf("%i",&venda.qtde[y]);
-
+    fflush(stdin); scanf("%i",&venda.qtde);
+    
     //Pedir o Desconto
-    printf("\nDigite o Desconto: ");
-    fflush(stdin); scanf("%f",&venda.desconto[y]);	
-
-    //Confirmar Venda
+	printf("\nDigite o Desconto: ");
+	fflush(stdin); scanf("%f",&venda.desconto);	
+	
+  //Confirmar Venda
     printf("\nConfirma Venda(S/N)? ");
     fflush(stdin); scanf("%c",&opc);
-    if ((opc=='n')||(opc=='N')){
-      printf("\nVenda NAO Confirmado!");
-      return; ////Retorna para o menu principal
-    }
-
-    printf("\nDeseja adicionar mais itens? (S/N)");
-    fflush(stdin); scanf("%c", &confirmCont);
-    if((confirmCont == 'n') || (confirmCont == 'N')){
-      printf("==========     Carrinho de pedidos:    ==========\n");
-      printf("Cliente: %s\n", cliente.nome);
-      printf("Codigo pedido: %i\n", venda.codvenda);
-
-      for(int i = 0; i < y + 1; i++){
-        printf("-------------------------------------------------\n");
-        livro = localizarLivro(venda.codlivro[i]);
-        printf("Titulo do livro: %s\n", livro.titulo);
-        printf("Quantidade: %i\n", venda.qtde[i]);
-        printf("Preco: %5.2f\n", livro.preco);
-        printf("Desconto: %5.2f\n", venda.desconto[i]);
-        total = livro.preco - venda.desconto[i];
-        printf("Total da unidade: %5.2f\n", total);
-        printf("Total: %5.2f\n", total*venda.qtde[i]);
-
-        totalAll += (total*venda.qtde[i]);
-      }
-      printf("========     Total dos pedidos: %5.2f     ========\n", totalAll);
-      break;
-    }
-  }
-
-  printf("\nDeseja cancelar o carrinho? (S/N) ");
-  fflush(stdin); scanf("%c", &confirmCart);
-  if((confirmCart == 's') || (confirmCart == 'S')){
-    return;
-  }
-
+	if ((opc=='n')||(opc=='N')){
+		printf("\nVenda NAO Confirmado!");
+		return; ////Retorna para o menu principal
+	}    
+    
   //Gravar os dados no arquivo de Vendas
-  //Abrir o Arquivo
-  fpvenda = fopen(VENDAS,"ab");  
+    //Abrir o Arquivo
+    fpvenda = fopen(VENDAS,"ab");  
 	//Gravar o registro da venda
 	fwrite(&venda,sizeof(venda),1,fpvenda);
 	//Fechar o Arquivo
 	fclose(fpvenda);
 	//Dar uma msg de feedback para o usuário
-	printf("\nVenda Gravada com Sucesso.");
+	printf("\n Venda Gravada com Sucesso.");
 }//Fim efetuarVenda()
 
-void showSolds(){
-  FILE *fpvenda;
-
-  struct reg_livro livro;
-  struct reg_cliente cliente;
-  struct reg_venda venda;
-
-  double valuePaid, valueTotal;
-
-  if((fpvenda = fopen(VENDAS, "rb"))==NULL){
-  	printf("\nErro ao abrir o Arquivo %s",VENDAS);
-  	return;  //Volta para o Programa Principal
-  }
-
-  printf("=============== Vendas ===============");
-  while (fread(&venda, sizeof(venda),1,fpvenda)==1)
-  {
-    printf("\n--------------------------------------");
-    printf("\nPedido numero: %i", venda.codvenda);
-    cliente = localizarCliente(venda.codcliente);
-    printf("\nCliente: %s", cliente.nome);
-    printf("\n-------");
-
-    valueTotal = 0;
-    for(int i = 0; i < MAXCART; i++){
-      livro = localizarLivro(venda.codlivro[i]);
-
-      if(venda.codlivro[i] == NULL || livro.codigo == -1){
-          printf("\nTotal Pago: %5.2f", valueTotal);
-          break;
-      };
-
-      valuePaid = (livro.preco - venda.desconto[i])*venda.qtde[i];
-      valueTotal += valuePaid;
-
-      printf("\nCodigo do Livro: %i\nTitulo do Livro: %s\nQuantidade: %i\nPreco: %5.2f\nDesconto: %5.2f\nValor Pago: %5.2f", venda.codlivro[i], livro.titulo, venda.qtde[i], livro.preco, venda.desconto[i], valuePaid);
-
-      printf("\n-------");
-
-      if(venda.codlivro[i] == NULL || livro.codigo == -1){
-        printf("\nTotal Pago: %5.2f", valueTotal);
-      };
-    }
-  }
-  printf("\n======================================");
-  fclose(fpvenda);
-}
-
-int main() { 
+void main() { 
   int op;
-  
+
   do {
-  	printf("\n\n#########        Livraria Tech Info        #############");
-  	printf("\n###                                                  ###");
-  	printf("\n### 1) Cadastrar um Livro                            ###");
-  	printf("\n### 111) Cadastrar um Cliente                        ###");
-  	printf("\n### 2) Listar todos os Livros                        ###");
-  	printf("\n### 22) Listar todos as Vendas                       ###");
-  	printf("\n### 222) Listar todos os Clientes                    ###");
-  	printf("\n### 3) Consultar Livro pelo Codigo                   ###");
-  	printf("\n### 4) Consultar Livro pelo Titulo                   ###");
-  	printf("\n### 5) Consultar Livro por Palavra chave o Titulo    ###");
-  	printf("\n### 6) Alterar dados do Livro                        ###");
-  	printf("\n### 7) Excluir um Livro                              ###");
-  	printf("\n### 8) Efetuar Venda (Limite do carrinho: %i itens)  ###", MAXCART);
-  	printf("\n### 0) Sair                                          ###");
-  	printf("\n###                                                  ###");
+  	printf("\n\n######### Livraria Tech Info #########");
+  	printf("\n###                                ###");
+  	printf("\n### 1) Cadastrar um Livro          ###");
+  	printf("\n### 111) Cadastrar um Cliente      ###");
+  	printf("\n### 2) Listar todos os Livros      ###");
+  	printf("\n### 222) Listar todos os Clientes  ###");
+  	printf("\n### 3) Consultar Livro pelo Codigo ###");
+  	printf("\n### 4) Consultar Livro pelo Titulo ###");
+  	printf("\n### 5) Consultar Livro por Palavra chave o Titulo ###");
+  	printf("\n### 6) Alterar dados do Livro      ###");
+  	printf("\n### 7) Excluir um Livro            ###");
+  	printf("\n### 8) Efetuar Venda               ###");
+  	
+  	printf("\n### 0) Sair                        ###");
+  	printf("\n###                                ###");
   	printf("\nOpcao-> ");
   	fflush(stdin); scanf("%i",&op);
   	
@@ -579,16 +494,14 @@ int main() {
   	  	consultarTituloLivro();
   	  	break;
   	  case 6: //Alterar dados de um Livro
-		    alterarLivro();
-		    break;	
+		alterarLivro();
+		break;	
   	  case 7: //Excluir um Livro
-		    excluirLivro();
-		    break; 	
-	    case 8: //Efetuar a Venda
-	      efetuarVenda();
-	      break; 	
-      case 22:
-        showSolds();
+		excluirLivro();
+		break; 	
+	  case 8: //Efetuar a Venda
+	    efetuarVenda();
+	    break;
 	} 	
   }while (op!=0);
 
