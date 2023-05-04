@@ -454,7 +454,7 @@ void efetuarVenda(){
 
 void main() { 
   int op;
-  
+
   do {
   	printf("\n\n######### Livraria Tech Info #########");
   	printf("\n###                                ###");

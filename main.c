@@ -4,6 +4,7 @@
 #define LIVROS "livros.dat"
 #define CLIENTES "clientes.dat"
 #define VENDAS "vendas.dat"
+#define MAXCART 50 //Max number of cart
 
 struct reg_livro{ 
  int codigo; 
@@ -21,9 +22,9 @@ struct reg_cliente{
 struct reg_venda{
   int codvenda;  //Código da venda (ou pedido)	
   int codcliente; //Código do Cliente que comprou
-  int codlivro;  //Código do Livro vendido
-  int qtde;  //Qtde vendida deste item
-  float desconto; //Desconto aplicado a este item
+  int codlivro[MAXCART];  //Código do Livro vendido
+  int qtde[MAXCART];  //Qtde vendida deste item
+  float desconto[MAXCART]; //Desconto aplicado a este item
 };
 
 void cadastrarLivro(){
@@ -386,7 +387,6 @@ void efetuarVenda(){
   struct reg_venda venda;
   struct reg_cliente cliente;
   struct reg_livro livro;
-  struct reg_venda cart[100];
   char opc, confirmCont, confirmCart;
   int x=0; // quantidade de indexs
   double total, totalAll=0;
@@ -413,12 +413,12 @@ void efetuarVenda(){
     return; ////Retorna para o menu principal
   }
 
-  while(1){
+  for(int y = 0; y < MAXCART; y++){
     //Pedir o Código do Livro
     printf("Digite o Codigo do Livro: ");
-    fflush(stdin); scanf("%i",&venda.codlivro);    
+    fflush(stdin); scanf("%i",&venda.codlivro[y]);    
     //Localizar o Livro, mostrar e pedir confirmação
-    livro = localizarLivro(venda.codlivro);
+    livro = localizarLivro(venda.codlivro[y]);
     if (livro.codigo==-1){
       printf("\nNenhum Livro localizado com este codigo!");
       return; //Retorna para o menu principal
@@ -433,11 +433,11 @@ void efetuarVenda(){
 
     //Pedir a Qtde
     printf("\nDigite a quantidade: ");
-    fflush(stdin); scanf("%i",&venda.qtde);
+    fflush(stdin); scanf("%i",&venda.qtde[y]);
 
     //Pedir o Desconto
     printf("\nDigite o Desconto: ");
-    fflush(stdin); scanf("%f",&venda.desconto);	
+    fflush(stdin); scanf("%f",&venda.desconto[y]);	
 
     //Confirmar Venda
     printf("\nConfirma Venda(S/N)? ");
@@ -447,7 +447,6 @@ void efetuarVenda(){
       return; ////Retorna para o menu principal
     }
 
-    cart[x] = venda;
     printf("\nDeseja adicionar mais itens? (S/N)");
     fflush(stdin); scanf("%c", &confirmCont);
     if((confirmCont == 'n') || (confirmCont == 'N')){
@@ -455,23 +454,22 @@ void efetuarVenda(){
       printf("Cliente: %s\n", cliente.nome);
       printf("Codigo pedido: %i\n", venda.codvenda);
 
-      for(int i = 0; i < x + 1; i++){
+      for(int i = 0; i < y + 1; i++){
         printf("-------------------------------------------------\n");
-        livro = localizarLivro(cart[i].codlivro);
+        livro = localizarLivro(venda.codlivro[i]);
         printf("Titulo do livro: %s\n", livro.titulo);
-        printf("Quantidade: %i\n", cart[i].qtde);
+        printf("Quantidade: %i\n", venda.qtde[i]);
         printf("Preco: %5.2f\n", livro.preco);
-        printf("Desconto: %5.2f\n", cart[i].desconto);
-        total = livro.preco - cart[i].desconto;
+        printf("Desconto: %5.2f\n", venda.desconto[i]);
+        total = livro.preco - venda.desconto[i];
         printf("Total da unidade: %5.2f\n", total);
-        printf("Total: %5.2f\n", total*cart[i].qtde);
+        printf("Total: %5.2f\n", total*venda.qtde[i]);
 
-        totalAll += (total*cart[i].qtde);
+        totalAll += (total*venda.qtde[i]);
       }
       printf("========     Total dos pedidos: %5.2f     ========\n", totalAll);
       break;
     }
-    x++;
   }
 
   printf("\nDeseja cancelar o carrinho? (S/N) ");
@@ -484,7 +482,7 @@ void efetuarVenda(){
   //Abrir o Arquivo
   fpvenda = fopen(VENDAS,"ab");  
 	//Gravar o registro da venda
-	fwrite(&cart,sizeof(cart),1,fpvenda);
+	fwrite(&venda,sizeof(venda),1,fpvenda);
 	//Fechar o Arquivo
 	fclose(fpvenda);
 	//Dar uma msg de feedback para o usuário
@@ -492,51 +490,38 @@ void efetuarVenda(){
 }//Fim efetuarVenda()
 
 void showSolds(){
-  FILE *fplivro;
-  FILE *fpcliente;
   FILE *fpvenda;
 
   struct reg_livro livro;
   struct reg_cliente cliente;
   struct reg_venda venda;
 
-  int vendaBefore;
+  char vendaVerify;
 
-  if((fplivro = fopen(LIVROS, "rb"))==NULL){
-  	printf("\nErro ao abrir o Arquivo %s",LIVROS);
-  	return;  //Volta para o Programa Principal
-  }
-  if((fpcliente = fopen(CLIENTES, "rb"))==NULL){
-  	printf("\nErro ao abrir o Arquivo %s",CLIENTES);
-  	return;  //Volta para o Programa Principal
-  }
   if((fpvenda = fopen(VENDAS, "rb"))==NULL){
   	printf("\nErro ao abrir o Arquivo %s",VENDAS);
   	return;  //Volta para o Programa Principal
   }
 
-  // fread(&livro, sizeof(livro),1,fplivro);
-  // fread(&cliente, sizeof(cliente),1,fpcliente);
-  // fread(&venda, sizeof(venda),1,fpvenda);
-
   printf("=============== Vendas ===============");
-  while ((fread(&cliente, sizeof(cliente),1,fpcliente)==1) && (fread(&venda, sizeof(venda),1,fpvenda)==1) && (fread(&livro, sizeof(livro),1,fplivro)==1))
+  while (fread(&venda, sizeof(venda),1,fpvenda)==1)
   {
-    if (venda.codvenda != vendaBefore)
-    {
-      /* code */
-      printf("--------------------------------------");
-      printf("\nPedido numero: %i", venda.codvenda);
-      printf("\nCliente: %s", cliente.nome);
-      printf("\nCodigo - Titulo                  Qtde. Preco  Desconto  Valor Pago");
+    printf("\n--------------------------------------");
+    printf("\nPedido numero: %i", venda.codvenda);
+    cliente = localizarCliente(venda.codcliente);
+    printf("\nCliente: %s", cliente.nome);
+    printf("\nCodigo - Titulo                  Qtde. Preco  Desconto  Valor Pago");
+
+    for(int i = 0; i < MAXCART; i++){
+      livro = localizarLivro(venda.codlivro[i]);
+      if(venda.codlivro[i] == NULL || livro.codigo == -1){
+          break;
+      }
+      livro = localizarLivro(venda.codlivro[i]);
+      printf("\n   %i     %s ", venda.codlivro[i], livro.titulo);
     }
-    livro = localizarLivro(venda.codlivro);
-    printf("%i %s ", venda.codlivro, livro.titulo)
-
-    vendaBefore = venda.codvenda
   }
-
-  fclose(fplivro);
+  fclose(fpvenda);
 }
 
 int main() { 
