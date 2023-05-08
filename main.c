@@ -339,33 +339,26 @@ struct reg_livro localizarLivro(int codlivro){
  	
  }//Fim localizarLivro()
  
-struct reg_author findAuthor(int codauthor){
+struct reg_author findAuthor(int codAuthor){
   FILE *fpauthor;
-  struct reg_author author;
-  int find=0;	
-	
-  //Abrir o Arquivo
-  if ((fpauthor = fopen(AUTHORS,"rb"))==NULL){ //consistência da Abertura do Arquivo
+  struct reg_author author = {-1, ' ', {0}};
+
+  if ((fpauthor = fopen(AUTHORS,"rb"))==NULL){
   	printf("\nErro ao abrir o Arquivo %s",AUTHORS);
-  	return;  //Volta para o Programa Principal
+  	return author;
   } 
-  
-  //Ler registro por registro até encontrar o author 
-  while ((find==0) && (fread(&author,sizeof(author),1,fpauthor)==1)){
-  	if (author.codAuthor==codauthor){
-  	  find = 1; //Sinaliza que encontrou o author
-	}
+
+  while (fread(&author,sizeof(author),1,fpauthor)==1){
+  	if (author.codAuthor==codAuthor){
+  	  fclose(fpauthor);
+      return author;
+	  }
   }
-  
-  if (find==0){
-  	author.codAuthor = -1; //Sinaliza que NÃO LOCALIZOU O author
-  }
-  //Fechar o Arquivo
-  fclose(fpauthor);	
-	 
-  return author;	
- 	
-}//Fim localizarLivro()
+
+  fclose(fpauthor);
+  return author;
+}
+
 
 void listarLivros(){
   FILE *fplivro;
