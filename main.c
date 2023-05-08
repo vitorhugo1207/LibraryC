@@ -5,9 +5,9 @@
 #define CLIENTES "clientes.dat"
 #define VENDAS "vendas.dat"
 #define AUTHORS "authors.dat"
-#define MAXCART 50 //Max number of the cart
+#define MAXCART 10 //Max number of the cart
 #define MAXAUTHOR 5 //Max number of author that a book have
-#define MAXBOOK 10 //Max number of book per author
+#define MAXBOOK 5 //Max number of book per author
 
 struct reg_livro{ 
  int codigo; 
@@ -410,16 +410,59 @@ void listarLivros(){
 }//Fim listarLivros()
 
 void registerAuthor(){
+  FILE *fpauthor;
+  struct reg_author author;
   
+  printf("\nDigite o codigo do autor: ");
+  fflush(stdin); scanf("%i", &author.codAuthor);
+
+  printf("\nDigite o nome do autor:");
+  fflush(stdin); gets(author.name);
+
+  fpauthor = fopen("authors.dat", "ab");
+  fwrite(&author,sizeof(author),1,fpauthor);
+  fclose(fpauthor);
+}
+
+void addBooktoAuthor(int codAuthor, int codBook){
+  FILE *fpauthor;
+  struct reg_author author;
+  int find;
+
+  if ((fpauthor = fopen(AUTHORS,"rb+"))==NULL){
+  	printf("\nErro ao abrir o Arquivo %s",AUTHORS);
+  	return;
+  } 
+
+  while ((find==0) && (fread(&author,sizeof(author),1,fpauthor)==1)){
+  	if (author.codAuthor==codAuthor){
+  	  find = 1;
+	  }
+  }
+  if (find==0){
+  	printf("\nNenhum autor localizado com este codigo!");
+  	fclose(fpauthor);
+  	return;
+  }
+
+  for(int i = 0; i < MAXAUTHOR; i++){
+    if(author.codLivro[i] == 0){
+      author.codLivro[i] = codBook;
+      break;
+    }
+  }
+
+  fseek(fpauthor,-sizeof(author),1);
+  fwrite(&author,sizeof(author),1,fpauthor);
+  fclose(fpauthor);
 }
 
 void cadastrarLivro(){
   FILE *fplivro; //Descritor do Arquivo
-  FILE *fpauthor; //Descritor do Arquivo
   struct reg_livro livro;
   struct reg_author author;
-  char opc, confirmAutor;
-  int FindCodAuthor, find;
+  char opc, confirm;
+  int codAuthor;
   
   printf("\nCadastro de Livro:\n");
   //Pedir os dados do Livro
@@ -431,65 +474,22 @@ void cadastrarLivro(){
   fflush(stdin); scanf("%f",&livro.preco);
 
   for(int i = 0; i < MAXAUTHOR; i++){
-    printf("\nO autor ja esta cadastrado no sistema? (S/N)");
-    fflush(stdin); scanf("%c", &confirmAutor);
-
-    if((confirmAutor == 'N') || (confirmAutor == 'n')){
-      printf("\nDigite o codigo do autor: ");
-      fflush(stdin); scanf("%i", &livro.codAuthor[i]);
-      author.codAuthor = livro.codAuthor[i];
-      printf("\nDigite o nome do autor:");
-      fflush(stdin); gets(author.name);
-      author.codLivro[i] = livro.codigo;
-
-      printf("\nCadastrar um novo autor? (S/N)");
-      confirmAutor = ' ';
-      fflush(stdin); scanf("%c", &confirmAutor);
-      if((confirmAutor == 'N') || (confirmAutor == 'n')){
-        fpauthor = fopen("authors.dat", "ab");
-        fwrite(&author,sizeof(author),1,fpauthor);
-        fclose(fpauthor);
-
-        break;
-      }
-      fpauthor = fopen("authors.dat", "ab");
-      fwrite(&author,sizeof(author),1,fpauthor);
-      fclose(fpauthor);
-    }
-    if((confirmAutor == 'S') || (confirmAutor == 's')){
-      printf("Digite o codigo do autor: ");
-      fflush(stdin); scanf("%i", &FindCodAuthor);
-
-      if ((fplivro = fopen(AUTHORS,"rb"))==NULL){ 
-        printf("\nErro ao abrir o Arquivo %s",AUTHORS);
-        return;
-      } 
-      while ((find==0) && (fread(&author,sizeof(author),1,fpauthor)==1)){
-        if (author.codAuthor == FindCodAuthor){
-          livro.codAuthor[i] = author.codAuthor;
-          for(int x=0; x < MAXBOOK; x++){
-            struct reg_livro livroTwo = localizarLivro(author.codLivro[x]);
-            if(author.codLivro[x] == NULL || livroTwo.codigo == -1){
-              author.codLivro[x] = livroTwo.codigo;
-
-              fpauthor = fopen("authors.dat", "ab");
-              fwrite(&author,sizeof(author),1,fpauthor);
-              fclose(fpauthor);
-            }
-            find = 1;
-            break;
-          }
-        }
-        else{
-          printf("Autor não encontrado!");
-        }
-      }
+    printf("\nDigite o codigo do author: ");
+    fflush(stdin); scanf("%i", &codAuthor);
+    author = findAuthor(codAuthor);
+    
+    if(author.codAuthor == -1){
+      printf("\nAutor nao encontrado! Retornando para o menu...");
+      return;
     }
 
-    confirmAutor = " ";
-    printf("Deseja cadastrar mais autor para esse livro? (S/N)");
-    fflush(stdin); scanf("%c", &confirmAutor) ;
-    if((confirmAutor == 'N') || (confirmAutor == 'n')){
+    livro.codAuthor[i] = author.codAuthor;
+    addBooktoAuthor(author.codAuthor, livro.codigo);
+    printf("Autor cadastrado: %-30s", author.name);
+
+    printf("\nDeseja atribuir mais um autor para esse livro? (S/N)");
+    fflush(stdin); scanf("%s", &confirm);
+    if((confirm == 'N') || (confirm == 'n')){
       break;
     }
   }
@@ -673,6 +673,7 @@ int main() {
   	printf("\n\n#########        Livraria Tech Info        #############");
   	printf("\n###                                                  ###");
   	printf("\n### 1) Cadastrar um Livro                            ###");
+  	printf("\n### 11) Cadastrar um Autor                           ###");
   	printf("\n### 111) Cadastrar um Cliente                        ###");
   	printf("\n### 2) Listar todos os Livros                        ###");
   	printf("\n### 22) Listar todos as Vendas                       ###");
@@ -717,7 +718,11 @@ int main() {
 	      efetuarVenda();
 	      break; 	
       case 22:
-        showSolds();
+        showSolds(); 	
+        break;
+      case 11:
+        registerAuthor();
+        break;
 	} 	
   }while (op!=0);
 
