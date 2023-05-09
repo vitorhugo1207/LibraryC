@@ -410,7 +410,7 @@ void registerAuthor(){
   fflush(stdin); gets(author.name);
 
   for(int i = 0; i < MAXAUTHOR; i++){
-    author.codLivro[i] = ' ';
+    author.codLivro[i] = -1;
   }
 
   fpauthor = fopen("authors.dat", "ab");
@@ -440,7 +440,9 @@ void addBooktoAuthor(int codAuthor, int codBook){
   }
 
   for(int i = 0; i < MAXAUTHOR; i++){
-    if(author.codLivro[i] == 0){
+    printf("\n-- codigo autor: %-6i --\n", author.codAuthor);
+    printf("\n-- codigo livro: %-6i --\n", author.codLivro[i]);
+    if(author.codLivro[i] == -1){
       author.codLivro[i] = codBook;
       fseek(fpauthor,-sizeof(author),SEEK_CUR);
       fwrite(&author,sizeof(author),1,fpauthor);
@@ -453,7 +455,7 @@ void addBooktoAuthor(int codAuthor, int codBook){
 
 void cadastrarLivro(){
   FILE *fplivro; //Descritor do Arquivo
-  struct reg_livro livro;
+  struct reg_livro livro = {-1, {0}, 0.00, ' '};
   struct reg_author author;
   char opc, confirm;
   int codAuthor;
@@ -678,7 +680,7 @@ void searchBookAuthor(){
   printf("\nLivros: ");
 
   for(int i = 0; i < MAXAUTHOR; i++){
-    if(livro.codigo == -1){
+    if(livro.codigo == ' '){
       break;
     }
     livro = localizarLivro(author.codLivro[i]);
