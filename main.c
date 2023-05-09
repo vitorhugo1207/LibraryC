@@ -67,7 +67,8 @@ void consultarCodigoLivro(){
   }
   //Fechar o Arquivo
   fclose(fplivro);	
-	
+
+  system("pause");
 }//Fim consultarCodigoLivro()
 
 void consultarTituloLivro(){
@@ -100,7 +101,8 @@ void consultarTituloLivro(){
   }
   //Fechar o Arquivo
   fclose(fplivro);	
-	  
+	
+  system("pause");
 }//Fim consultarTituloLivro()
 
 void alterarLivro(){
@@ -163,6 +165,7 @@ void alterarLivro(){
   //Dar uma mensagem de feedback para o usuário
   printf("\nLivro Alterado com Sucesso.");
 
+  system("pause");
 }//Fim alterarLivro()
 
 void excluirLivro(){
@@ -228,6 +231,8 @@ void excluirLivro(){
   
   //Dar um msg de feedback para o usuário
   printf("\nLivro Excluido com Sucesso.");	
+
+  system("pause");
 }//Fim excluirLivro()
 
 void cadastrarCliente(){
@@ -258,6 +263,8 @@ void cadastrarCliente(){
  }else{
  	printf("\nCadastro Cancelado!");
  }	
+
+ system("pause");
 }//Fim cadastrarCliente()
 
 void listarClientes(){
@@ -279,6 +286,8 @@ void listarClientes(){
   
   //Fechar o Arquivo
   fclose(fpcliente);	
+
+  system("pause");
 }//Fim listarClientes()
 
 struct reg_cliente localizarCliente(int codcli){
@@ -384,11 +393,12 @@ void listarLivros(){
 
     for(int i = 0; i < MAXAUTHOR; i++){
       author = findAuthor(livro.codAuthor[i]);
-
-      if(livro.codAuthor[i] != -1){
-        author = findAuthor(livro.codAuthor[i]);
-        printf("%-30s", author.name);
+      // printf("\n-- codigo do autor no livro: %i --\n", livro.codAuthor[i]);
+      // printf("\n-- codigo do livro no author: %i --\n", author.codLivro[i]);
+      if(author.codLivro[i] == -1){
+        break;
       }
+      printf("%-30s", author.name);
     }
 
     printf("\nPreco: %5.2f", livro.preco);
@@ -397,6 +407,9 @@ void listarLivros(){
   }
   //Fechar o Arquivo	
   fclose(fplivro);	
+
+  printf("\n");
+  system("pause");
 }//Fim listarLivros()
 
 void registerAuthor(){
@@ -416,6 +429,8 @@ void registerAuthor(){
   fpauthor = fopen("authors.dat", "ab");
   fwrite(&author,sizeof(author),1,fpauthor);
   fclose(fpauthor);
+
+  system("pause");
 }
 
 void addBooktoAuthor(int codAuthor, int codBook){
@@ -440,8 +455,6 @@ void addBooktoAuthor(int codAuthor, int codBook){
   }
 
   for(int i = 0; i < MAXAUTHOR; i++){
-    printf("\n-- codigo autor: %-6i --\n", author.codAuthor);
-    printf("\n-- codigo livro: %-6i --\n", author.codLivro[i]);
     if(author.codLivro[i] == -1){
       author.codLivro[i] = codBook;
       fseek(fpauthor,-sizeof(author),SEEK_CUR);
@@ -455,10 +468,14 @@ void addBooktoAuthor(int codAuthor, int codBook){
 
 void cadastrarLivro(){
   FILE *fplivro; //Descritor do Arquivo
-  struct reg_livro livro = {-1, {0}, 0.00, ' '};
+  struct reg_livro livro;
   struct reg_author author;
   char opc, confirm;
   int codAuthor;
+
+  // for(int i = 0; i < MAXAUTHOR; i++){
+  //   livro.codAuthor[i] = -1;
+  // }
   
   printf("\nCadastro de Livro:\n");
   //Pedir os dados do Livro
@@ -501,10 +518,12 @@ void cadastrarLivro(){
     fwrite(&livro,sizeof(livro),1,fplivro);
     //Fechar o Arquivo
     fclose(fplivro);
-  	printf("\nLivro Gravado com Sucesso.");
+  	printf("\nLivro Gravado com Sucesso.\n");
   }else{
-  	printf("\nOperacao Cancelada!");
+  	printf("\nOperacao Cancelada!\n");
   }
+
+  system("pause");
 }//Fim cadastrarLivro()
 
 void efetuarVenda(){
@@ -612,6 +631,8 @@ void efetuarVenda(){
 	fclose(fpvenda);
 	//Dar uma msg de feedback para o usuário
 	printf("\nVenda Gravada com Sucesso.");
+
+  system("pause");
 }//Fim efetuarVenda()
 
 void showSolds(){
@@ -660,6 +681,8 @@ void showSolds(){
   }
   printf("\n======================================");
   fclose(fpvenda);
+
+  system("pause");
 }
 
 void searchBookAuthor(){
@@ -672,6 +695,7 @@ void searchBookAuthor(){
 
   author = findAuthor(codAuthor);
   if(author.codAuthor == -1){
+    printf("autor não encontrado!");
     return;
   }
 
@@ -680,18 +704,23 @@ void searchBookAuthor(){
   printf("\nLivros: ");
 
   for(int i = 0; i < MAXAUTHOR; i++){
-    if(livro.codigo == ' '){
+    livro = localizarLivro(author.codLivro[i]);
+    if(livro.codigo == -1){
       break;
     }
-    livro = localizarLivro(author.codLivro[i]);
     printf("%-30s", livro.titulo);
   }
+  
+  printf("\n");
+  system("pause");
 }
 
 int main() { 
   int op;
-  
+
   do {
+    system("cls");
+
   	printf("\n\n#########        Livraria Tech Info        #############");
   	printf("\n###                                                  ###");
   	printf("\n### 1) Cadastrar um Livro                            ###");
