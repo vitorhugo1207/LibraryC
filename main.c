@@ -376,7 +376,6 @@ void listarLivros(){
   } 
 
   printf("\n####  Relatorio de Todos os Livros  ####");
-  // printf("\nCodigo Titulo                       Author                            Preco");
   //Ler registro por registro e mostrar na tela 
   while (fread(&livro,sizeof(livro),1,fplivro)==1){ 
     printf("\nCodigo: %-6i", livro.codigo);
@@ -385,6 +384,7 @@ void listarLivros(){
 
     for(int i = 0; i < MAXAUTHOR; i++){
       author = findAuthor(livro.codAuthor[i]);
+
       if(livro.codAuthor[i] != -1){
         author = findAuthor(livro.codAuthor[i]);
         printf("%-30s", author.name);
@@ -408,6 +408,10 @@ void registerAuthor(){
 
   printf("\nDigite o nome do autor:");
   fflush(stdin); gets(author.name);
+
+  for(int i = 0; i < MAXAUTHOR; i++){
+    author.codLivro[i] = ' ';
+  }
 
   fpauthor = fopen("authors.dat", "ab");
   fwrite(&author,sizeof(author),1,fpauthor);
