@@ -359,7 +359,6 @@ struct reg_author findAuthor(int codAuthor){
   return author;
 }
 
-
 void listarLivros(){
   FILE *fplivro;
   FILE *fpauthor;
@@ -659,6 +658,32 @@ void showSolds(){
   fclose(fpvenda);
 }
 
+void searchBookAuthor(){
+  struct reg_author author;
+  struct reg_livro livro;
+  int codAuthor;
+
+  printf("Digite o numero do autor: ");
+  fflush(stdin); scanf("%i", &codAuthor);
+
+  author = findAuthor(codAuthor);
+  if(author.codAuthor == -1){
+    return;
+  }
+
+  printf("\n----");
+  printf("\nNome do Autor: %-30s", author.name);
+  printf("\nLivros: ");
+
+  for(int i = 0; i < MAXAUTHOR; i++){
+    if(livro.codigo == -1){
+      break;
+    }
+    livro = localizarLivro(author.codLivro[i]);
+    printf("%-30s", livro.titulo);
+  }
+}
+
 int main() { 
   int op;
   
@@ -677,6 +702,7 @@ int main() {
   	printf("\n### 6) Alterar dados do Livro                        ###");
   	printf("\n### 7) Excluir um Livro                              ###");
   	printf("\n### 8) Efetuar Venda (Limite do carrinho: %i itens)  ###", MAXCART);
+  	printf("\n### 9) Procurar livro por autor                      ###");
   	printf("\n### 0) Sair                                          ###");
   	printf("\n###                                                  ###");
   	printf("\nOpcao-> ");
@@ -715,6 +741,9 @@ int main() {
         break;
       case 11:
         registerAuthor();
+        break;
+      case 9:
+        searchBookAuthor();
         break;
 	} 	
   }while (op!=0);
