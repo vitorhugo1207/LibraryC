@@ -382,17 +382,15 @@ void listarLivros(){
     printf("\nCodigo: %-6i", livro.codigo);
     printf("\nTitulo: %-30s", livro.titulo);
     printf("\nAutor(es): ");
-    while (1)
-    {
-      for(int i = 0; i < MAXAUTHOR; i++){
+
+    for(int i = 0; i < MAXAUTHOR; i++){
+      author = findAuthor(livro.codAuthor[i]);
+      if(livro.codAuthor[i] != -1){
         author = findAuthor(livro.codAuthor[i]);
-        if((livro.codAuthor[i] == NULL) || (author.codAuthor == -1)){
-          break;
-        }
         printf("%-30s", author.name);
       }
-      break;
     }
+
     printf("\nPreco: %5.2f", livro.preco);
     printf("\n----");
     // printf("\n%-6i %-30s %-30s %5.2f",livro.codigo,livro.titulo,author.name,livro.preco);
@@ -440,12 +438,12 @@ void addBooktoAuthor(int codAuthor, int codBook){
   for(int i = 0; i < MAXAUTHOR; i++){
     if(author.codLivro[i] == 0){
       author.codLivro[i] = codBook;
+      fseek(fpauthor,-sizeof(author),SEEK_CUR);
+      fwrite(&author,sizeof(author),1,fpauthor);
       break;
     }
   }
 
-  fseek(fpauthor,-sizeof(author),1);
-  fwrite(&author,sizeof(author),1,fpauthor);
   fclose(fpauthor);
 }
 
