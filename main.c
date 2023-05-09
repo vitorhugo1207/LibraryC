@@ -421,7 +421,7 @@ void registerAuthor(){
 void addBooktoAuthor(int codAuthor, int codBook){
   FILE *fpauthor;
   struct reg_author author;
-  int find;
+  int find = 0;
 
   if ((fpauthor = fopen(AUTHORS,"rb+"))==NULL){
   	printf("\nErro ao abrir o Arquivo %s",AUTHORS);
