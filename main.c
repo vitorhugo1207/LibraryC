@@ -393,12 +393,10 @@ void listarLivros(){
 
     for(int i = 0; i < MAXAUTHOR; i++){
       author = findAuthor(livro.codAuthor[i]);
-      // printf("\n-- codigo do autor no livro: %i --\n", livro.codAuthor[i]);
-      // printf("\n-- codigo do livro no author: %i --\n", author.codLivro[i]);
+      printf("%-30s", author.name);
       if(author.codLivro[i] == -1){
         break;
       }
-      printf("%-30s", author.name);
     }
 
     printf("\nPreco: %5.2f", livro.preco);
@@ -777,6 +775,10 @@ int main() {
         break;
       case 9:
         searchBookAuthor();
+        break;
+      case 0:
+        printf("\nSaindo...\n");
+        system("exit");
         break;
 	} 	
   }while (op!=0);
